@@ -44,3 +44,17 @@ class TestOverdraftAccount(TestCase):
     def test_withdraw_with_overdraft(self):
         self.a.transact(-300)
         self.assertEqual(self.a.balance, -300)
+        self.assertEqual(self.a.overdraft_account.balance, 200)
+
+    def test_withdrawal_while_overdrawn(self):
+        # withdraw 100 from an account with 0 and 500 o/d
+        # balance should be -100 and od available 400
+        self.a.transact(-100)
+        self.assertEqual(self.a.balance, -100)
+        self.assertEqual(self.a.overdraft_account.balance, 400)
+
+        # withdraw 200 from an account already overdrawn (-100)
+        # balance should be -300, and od available 200
+        self.a.transact(-200)
+        self.assertEqual(self.a.balance, -300)
+        self.assertEqual(self.a.overdraft_account.balance, 200)
