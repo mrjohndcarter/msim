@@ -69,3 +69,41 @@ class TestOverdraftAccount(TestCase):
         self.a.transact(-200)
         self.assertEqual(-300, self.a.balance)
         self.assertEqual(200, self.a.overdraft_account.balance)
+
+    def test_deposit_not_in_overdraft(self):
+        self.b.transact(550)
+        self.assertEqual(550, self.b.balance)
+        self.b.transact(450)
+        self.assertEqual(1000, self.b.balance)
+
+    def test_deposit_in_overdraft(self):
+        # withdraw 300 from o/d
+        # balance should be -300 and od available 200
+        self.a.transact(-300)
+        self.assertEqual(-300, self.a.balance)
+        self.assertEqual(200, self.a.overdraft_account.balance)
+
+        # deposit 100
+        # balance should be -200 and od available 300
+        self.a.transact(100)
+        self.assertEqual(-200, self.a.balance)
+        self.assertEqual(300, self.a.overdraft_account.balance)
+
+        # deposit 200
+        # balance should be 0 and od available 500
+        self.a.transact(200)
+        self.assertEqual(0, self.a.balance)
+        self.assertEqual(500, self.a.overdraft_account.balance)
+
+    def test_deposit_in_overdraft_to_positive_balance(self):
+        # withdraw 450 from o/d
+        # balance should be -450 and od available 50
+        self.a.transact(-450)
+        self.assertEqual(-450, self.a.balance)
+        self.assertEqual(50, self.a.overdraft_account.balance)
+
+        # deposit 1000
+        # balance should be 550 and od available 500
+        self.a.transact(1000)
+        self.assertEqual(550, self.a.balance)
+        self.assertEqual(500, self.a.overdraft_account.balance)
