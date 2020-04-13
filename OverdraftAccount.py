@@ -22,11 +22,16 @@ class OverdraftAccount(Account):
             if self.balance + amount >= 0:
                 self.balance += amount
 
-            # case 1 - withdrawal cannot be covered by balance
-            elif self.balance + amount < 0:
-                remaining_after_account_withdrawal = abs(amount) - self.balance
+            # case 1 - withdrawal can be partially covered by balance
+            elif self.balance > 0:
+                remaining_after_account_withdrawal = self.balance + amount # this will be negative
                 self.balance += amount
-                self.overdraft_account.transact(-remaining_after_account_withdrawal)
+                self.overdraft_account.transact(remaining_after_account_withdrawal)
+
+            # case 2 - withdrawal must be completely covered by o/d
+            else:
+                self.balance += amount
+                self.overdraft_account.transact(amount)
 
         return self.balance
 
