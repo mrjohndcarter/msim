@@ -17,11 +17,16 @@ class OverdraftAccount(Account):
         # deposit -> put toward O/D first then balance
         # withdrawal logic:
         if amount < 0:
-            self.balance += amount
 
-            # if account has gone into negative
-            if self.balance < 0:
-                self.overdraft_account.transact(self.balance)
+            # case 0 - withdrawal covered by balance
+            if self.balance + amount >= 0:
+                self.balance += amount
+
+            # case 1 - withdrawal cannot be covered by balance
+            elif self.balance + amount < 0:
+                remaining_after_account_withdrawal = abs(amount) - self.balance
+                self.balance += amount
+                self.overdraft_account.transact(-remaining_after_account_withdrawal)
 
         return self.balance
 
