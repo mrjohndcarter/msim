@@ -33,6 +33,25 @@ class OverdraftAccount(Account):
                 self.balance += amount
                 self.overdraft_account.transact(amount)
 
+        # deposit logic
+        else:
+
+            # case 0 - account is positive
+            if self.balance >= 0:
+                self.balance += amount
+
+            # case 1 - deposit will be offset (but not completely) by o/d
+            # amount to be deposited is greater than abs of balance (which is negative)
+            elif self.balance < 0 and amount > abs(self.balance):
+                remaining_after_od_deposit = amount - abs(self.balance)
+                self.overdraft_account.transact(amount - remaining_after_od_deposit)
+                self.balance += amount
+
+            # case 2 - deposit completely used toward o/d
+            else:
+                self.balance += amount
+                self.overdraft_account.transact(amount)
+
         return self.balance
 
 
