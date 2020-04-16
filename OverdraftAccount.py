@@ -1,4 +1,4 @@
-from Account import Account
+from Account import Account, InsufficientFundsError
 from unittest import TestCase
 
 
@@ -126,3 +126,15 @@ class TestOverdraftAccount(TestCase):
         self.a.transact(1000)
         self.assertEqual(550, self.a.balance)
         self.assertEqual(500, self.a.overdraft_account.balance)
+
+    def test_withdrawal_beyond_overdraft(self):
+        # from a balance of 0, with a 500 overdraft, withdraw 500
+        self.a.transact(-500)
+        self.assertEqual(-500, self.a.balance)
+        self.assertEqual(0, self.a.overdraft_account.balance)
+
+        # try to withdraw another 100
+        with self.assertRaises(InsufficientFundsError) as context:
+            self.a.transact(-100)
+            self.assertEqual(-100, context.exception.args[0]['balance'])
+
