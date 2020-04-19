@@ -23,10 +23,10 @@ class Account(object):
         transaction.timestamp = datetime.now();
         transaction.balance = self.balance + transaction.amount
         self.transaction_history.append(transaction)
-        self.transact(transaction.amount)
+        self.__transact(transaction.amount)
         return self.balance
 
-    def transact(self, amount: float) -> float:
+    def __transact(self, amount: float) -> float:
         self.balance += amount
         if self.balance + self.overdraft_maximum < 0:
             raise InsufficientFundsError({'message': 'Negative balance', 'balance': self.balance})

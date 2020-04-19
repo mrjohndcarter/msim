@@ -7,7 +7,7 @@ from Transaction import Transaction
 class TestAccountTransactions(TestCase):
     def setUp(self) -> None:
         self.a = Account('Alice', 1)
-        self.a.transact(1000) # opening balance
+        self.a.__transact(1000) # opening balance
 
     def test_withdrawal(self):
         self.a.execute_transaction(Transaction(-500, 'Groceries'))
@@ -34,7 +34,7 @@ class TestAccountTransactions(TestCase):
 
     def test_overdraft_transactions(self):
         b = Account('Bob', 2, 500)
-        b.transact(500)
+        b.__transact(500)
         # withdraw into -250 overdraft
         b.execute_transaction(Transaction(-750, 'First transaction'))
         self.assertEqual(-250, b.balance)
@@ -48,7 +48,7 @@ class TestAccountTransactions(TestCase):
     def test_transactions_and_balance_consistency(self):
         # verify that we get the same sum by iterating through all transactions.
         c = Account('Carol', 3, 500)
-        c.transact(500)
+        c.__transact(500)
         for _ in repeat(None, 10):
             c.execute_transaction(Transaction(-50, 'No description'))
         self.assertEqual(0, c.balance)

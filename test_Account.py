@@ -13,23 +13,23 @@ class TestAccount(TestCase):
         self.assertEqual(0, self.a.balance)
 
     def test_deposit(self):
-        self.a.transact(505.50)
+        self.a.__transact(505.50)
         self.assertEqual(505.50, self.a.balance)
-        self.assertEqual(515.50, self.a.transact(10))
+        self.assertEqual(515.50, self.a.__transact(10))
 
     def test_withdrawal_no_overdraft(self):
-        self.b.transact(-500)
+        self.b.__transact(-500)
         self.assertEqual(500, self.b.balance)
-        self.assertEqual(400, self.b.transact(-100))
+        self.assertEqual(400, self.b.__transact(-100))
 
     def test_withdrawal_no_overdraft_attempted_overdraw(self):
         with self.assertRaises(InsufficientFundsError) as context:
-            self.a.transact(-500)
+            self.a.__transact(-500)
         self.assertEqual(-500, context.exception.args[0]['balance'])
 
-        self.b.transact(4000)
+        self.b.__transact(4000)
         with self.assertRaises(InsufficientFundsError) as context:
-            self.b.transact(-10000)
+            self.b.__transact(-10000)
         self.assertEqual(-5000, context.exception.args[0]['balance'])
 
 
