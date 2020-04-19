@@ -63,3 +63,17 @@ class TestAccountTransactions(TestCase):
             sum += t.amount
             self.assertEqual(sum, t.balance)
         self.assertEqual(sum, c.balance)
+
+    def test_transaction_update(self):
+        d = Account('David', 4)
+
+        t = Transaction(100, 'small deposit')
+        t.timestamp = None
+        t.balance = 0
+        d.execute_transaction(t)
+
+        self.assertIsNotNone(t.timestamp)
+        self.assertEqual(100, t.balance)
+
+
+
