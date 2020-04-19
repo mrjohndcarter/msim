@@ -32,7 +32,7 @@ class Account(object):
         # step 1 -- find the transaction
         transaction_in_history = self.find_transactions_with_id(transaction.transaction_id)
 
-        # invariant : should only be 1 transaction in history with that id
+        # invariant : should only be 0 or 1 transaction in history with that id
         if len(transaction_in_history) <= 0 or len(transaction_in_history) > 1:
             raise KeyError;
 

@@ -92,3 +92,11 @@ class TestAccountTransactions(TestCase):
         self.assertEqual(0, new_transaction.balance)
 
         self.assertEqual(2, len(e.transaction_history))
+
+    def test_failing_transaction_rollback(self):
+        t = Transaction(400, "not associated with account")
+        with self.assertRaises(KeyError) as context:
+            self.a.rollback_transaction(t)
+
+        self.assertEqual(1000, self.a.balance)
+        self.assertEqual(0, len(self.a.transaction_history))
