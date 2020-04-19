@@ -6,8 +6,7 @@ from Transaction import Transaction
 class TestAccount(TestCase):
     def setUp(self) -> None:
         self.a = Account('Alice', 1)
-        self.b = Account('Bob', 2)
-        self.b.balance = 1000.0
+        self.b = Account('Bob', 2, opening_balance=1000.0)
 
     def test_new_account(self):
         self.assertEqual(0, self.a.balance)
