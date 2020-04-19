@@ -4,6 +4,7 @@ from itertools import repeat
 from Account import Account, InsufficientFundsError
 from Transaction import Transaction
 
+
 class TestAccountTransactions(TestCase):
     def setUp(self) -> None:
         self.a = Account('Alice', 1, opening_balance=1000.0)
@@ -58,7 +59,7 @@ class TestAccountTransactions(TestCase):
         self.assertEqual(250, c.balance)
         self.assertEqual(20, len(c.transaction_history))
 
-        sum = 500 # from opening balance
+        sum = 500  # from opening balance
         for t in c.transaction_history:
             sum += t.amount
             self.assertEqual(sum, t.balance)
@@ -75,5 +76,19 @@ class TestAccountTransactions(TestCase):
         self.assertIsNotNone(t.timestamp)
         self.assertEqual(100, t.balance)
 
+    def test_transaction_rollback(self):
+        e = Account('Eunice', 5)
+        t = Transaction(-500, 'Transaction that should fail.')
 
+        with self.assertRaises(InsufficientFundsError) as context:
+            e.execute_transaction(t)
 
+        self.assertEqual(-500, e.balance)
+        self.assertEqual(-500, t.balance)
+
+        new_transaction = e.rollback_transaction(t)
+
+        self.assertEqual(0, e.balance)
+        self.assertEqual(0, new_transaction.balance)
+
+        self.assertEqual(2, len(e.transaction_history))
