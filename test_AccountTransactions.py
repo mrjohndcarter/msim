@@ -2,7 +2,7 @@ from unittest.case import TestCase
 from itertools import repeat
 
 from Account import Account, InsufficientFundsError
-from Transaction import Transaction
+from AccountTransaction import AccountTransaction
 
 
 class TestAccountTransactions(TestCase):
@@ -10,24 +10,24 @@ class TestAccountTransactions(TestCase):
         self.a = Account('Alice', 1, opening_balance=1000.0)
 
     def test_withdrawal(self):
-        self.a.execute_transaction(Transaction(-500, 'Groceries'))
+        self.a.execute_transaction(AccountTransaction(-500, 'Groceries'))
         self.assertEqual(500, self.a.balance)
         self.assertEqual(1, len(self.a.transaction_history))
 
     def test_deposit(self):
-        self.a.execute_transaction(Transaction(200, 'Gift'))
+        self.a.execute_transaction(AccountTransaction(200, 'Gift'))
         self.assertEqual(1200, self.a.balance)
         self.assertEqual(1, len(self.a.transaction_history))
 
     def test_insufficient_funds(self):
         with self.assertRaises(InsufficientFundsError) as context:
-            self.a.execute_transaction(Transaction(-1200, 'Big Purchase'))
+            self.a.execute_transaction(AccountTransaction(-1200, 'Big Purchase'))
         self.assertEqual(-200, context.exception.args[0]['balance'])
         self.assertEqual(-200, self.a.balance)
         self.assertEqual(1, len(self.a.transaction_history))
 
         with self.assertRaises(InsufficientFundsError) as context:
-            self.a.execute_transaction(Transaction(-200, 'Another Purchase'))
+            self.a.execute_transaction(AccountTransaction(-200, 'Another Purchase'))
         self.assertEqual(-400, context.exception.args[0]['balance'])
         self.assertEqual(-400, self.a.balance)
         self.assertEqual(2, len(self.a.transaction_history))
@@ -36,11 +36,11 @@ class TestAccountTransactions(TestCase):
         b = Account('Bob', 2, 500, opening_balance=500)
 
         # withdraw into -250 overdraft
-        b.execute_transaction(Transaction(-750, 'First transaction'))
+        b.execute_transaction(AccountTransaction(-750, 'First transaction'))
         self.assertEqual(-250, b.balance)
 
         with self.assertRaises(InsufficientFundsError) as context:
-            b.execute_transaction(Transaction(-500, 'Second transaction'))
+            b.execute_transaction(AccountTransaction(-500, 'Second transaction'))
         self.assertEqual(-750, context.exception.args[0]['balance'])
         self.assertEqual(-750, b.balance)
         self.assertEqual(2, len(b.transaction_history))
@@ -50,12 +50,12 @@ class TestAccountTransactions(TestCase):
         c = Account('Carol', 3, overdraft=500, opening_balance=500)
 
         for _ in repeat(None, 10):
-            c.execute_transaction(Transaction(-50, 'No description'))
+            c.execute_transaction(AccountTransaction(-50, 'No description'))
         self.assertEqual(0, c.balance)
         self.assertEqual(10, len(c.transaction_history))
 
         for _ in repeat(None, 10):
-            c.execute_transaction(Transaction(25, 'No description'))
+            c.execute_transaction(AccountTransaction(25, 'No description'))
         self.assertEqual(250, c.balance)
         self.assertEqual(20, len(c.transaction_history))
 
@@ -68,7 +68,7 @@ class TestAccountTransactions(TestCase):
     def test_transaction_update(self):
         d = Account('David', 4)
 
-        t = Transaction(100, 'small deposit')
+        t = AccountTransaction(100, 'small deposit')
         t.timestamp = None
         t.balance = 0
         d.execute_transaction(t)
@@ -78,7 +78,7 @@ class TestAccountTransactions(TestCase):
 
     def test_transaction_rollback(self):
         e = Account('Eunice', 5)
-        t = Transaction(-500, 'Transaction that should fail.')
+        t = AccountTransaction(-500, 'Transaction that should fail.')
 
         with self.assertRaises(InsufficientFundsError) as context:
             e.execute_transaction(t)
@@ -94,7 +94,7 @@ class TestAccountTransactions(TestCase):
         self.assertEqual(2, len(e.transaction_history))
 
     def test_failing_transaction_rollback(self):
-        t = Transaction(400, "not associated with account")
+        t = AccountTransaction(400, "not associated with account")
         with self.assertRaises(KeyError) as context:
             self.a.rollback_transaction(t)
 

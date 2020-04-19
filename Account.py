@@ -1,4 +1,4 @@
-from Transaction import Transaction
+from AccountTransaction import AccountTransaction
 
 from datetime import datetime
 
@@ -19,7 +19,7 @@ class Account(object):
         self.overdraft_maximum = overdraft
         self.transaction_history = []
 
-    def execute_transaction(self, transaction: Transaction) -> float:
+    def execute_transaction(self, transaction: AccountTransaction) -> float:
         # side effect : we modify the transaction passed in:
         transaction.timestamp = datetime.now();
         transaction.balance = self._balance + transaction.amount
@@ -27,7 +27,7 @@ class Account(object):
         self.__transact(transaction.amount)
         return self._balance
 
-    def rollback_transaction(self, transaction: Transaction) -> Transaction:
+    def rollback_transaction(self, transaction: AccountTransaction) -> AccountTransaction:
         # can only rollback transactions that are in the history for this account
         # step 1 -- find the transaction
         transaction_in_history = self.find_transactions_with_id(transaction.transaction_id)
@@ -37,7 +37,7 @@ class Account(object):
             raise KeyError;
 
         # flip from credit/debit or debit/credit
-        opposite_transaction = Transaction(-transaction_in_history[0].amount,
+        opposite_transaction = AccountTransaction(-transaction_in_history[0].amount,
                                            f'rollback: {transaction_in_history[0].memo}')
 
         self.execute_transaction(opposite_transaction)
