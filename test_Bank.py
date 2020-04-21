@@ -15,3 +15,22 @@ class TestBank(TestCase):
         newer_account = self.bankA.create_account('Bob Newhart', 500, 500)
         self.assertNotEqual(new_account.account_number, newer_account.account_number)
         self.assertEqual(2, len(self.bankA.accounts))
+
+    def test_find_account(self):
+        my_account = None
+
+        # put the account somewhere in the list
+        for i in range(0, 100):
+            if i == 77:
+                my_account = self.bankA.create_account('Meme Melrose', 100, 600)
+            else:
+                self.bankA.create_account('A Nonymous', 100, 100)
+
+        self.assertEqual(my_account, self.bankA.find_account(my_account.account_number))
+
+    # def test_intrabank_transfer(self):
+    #     source_account = self.bankA.create_account('Scrooge McDuck', overdraft=1000, opening_balance=1000000)
+    #     destination_account = self.bankA.create_account('Donald Duck', overdraft=100, opening_balance=50)
+    #
+    #     self.bankA.internal_transfer(source_account.account_number, destination_account.account_number, 0.99)
+    #     self.assertEqual(50.99, destination_account.balance)
