@@ -1,4 +1,5 @@
-from Account import Account
+from Account import Account, InsufficientFundsError
+from AccountTransaction import AccountTransaction
 
 
 class Bank(object):
@@ -16,6 +17,25 @@ class Bank(object):
     def find_account(self, account_number) -> Account:
         return next(filter(lambda a: a.account_number == account_number, self.accounts))
 
-    def internal_transfer(self, source_account_number, destination_account_number, amount : float) -> tuple:
+    def internal_transfer(self, source_account_number, destination_account_number, amount: float) -> tuple:
+        # TODO: amount be positive
+        # if transaction fails, will rollback debit
         source_account = self.find_account(source_account_number)
-        destination_account_number = self.find_account(destination_account_number)
+        destination_account = self.find_account(destination_account_number)
+
+        # for the source account, we need to catch an InsufficientFundsError
+        transaction_out = AccountTransaction(-amount,
+                                             f'Transfer: {source_account_number} -> {destination_account_number}')
+        try:
+            source_account.execute_transaction(transaction_out)
+
+        except InsufficientFundsError as error:
+            source_account.rollback_transaction(transaction_out)
+            raise error
+
+        transaction_in = AccountTransaction(amount,
+                                            f'Transfer: {source_account_number} -> {destination_account_number}')
+        destination_account.execute_transaction(transaction_in)
+
+        # return tuple with two transactions
+        return transaction_out, transaction_in

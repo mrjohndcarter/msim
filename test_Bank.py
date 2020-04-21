@@ -1,5 +1,6 @@
 from unittest.case import TestCase
 
+from Account import InsufficientFundsError
 from Bank import Bank
 
 
@@ -28,9 +29,28 @@ class TestBank(TestCase):
 
         self.assertEqual(my_account, self.bankA.find_account(my_account.account_number))
 
-    # def test_intrabank_transfer(self):
-    #     source_account = self.bankA.create_account('Scrooge McDuck', overdraft=1000, opening_balance=1000000)
-    #     destination_account = self.bankA.create_account('Donald Duck', overdraft=100, opening_balance=50)
-    #
-    #     self.bankA.internal_transfer(source_account.account_number, destination_account.account_number, 0.99)
-    #     self.assertEqual(50.99, destination_account.balance)
+    def test_intrabank_transfer(self):
+        source_account = self.bankA.create_account('Scrooge McDuck', overdraft=1000, opening_balance=1000000)
+        destination_account = self.bankA.create_account('Donald Duck', overdraft=100, opening_balance=50)
+
+        self.bankA.internal_transfer(source_account.account_number, destination_account.account_number, 0.99)
+        self.assertEqual(50.99, destination_account.balance)
+        self.assertEqual(1, len(source_account.transaction_history))
+        self.assertEqual(1, len(destination_account.transaction_history))
+
+
+    def test_intrabank_transfer_fail(self):
+        source_account = self.bankA.create_account('Huey', overdraft=0, opening_balance=50)
+        destination_account = self.bankA.create_account('Donald Duck', overdraft=100, opening_balance=50)
+
+        with self.assertRaises(InsufficientFundsError) as context:
+            self.bankA.internal_transfer(source_account.account_number, destination_account.account_number, 1000)
+
+        self.assertEqual(50, source_account.balance)
+        self.assertEqual(50, destination_account.balance)
+
+        # should have an in and out transaction (from rollback)
+        self.assertEqual(2, len(source_account.transaction_history))
+
+        # destination account should be none the wiser
+        self.assertEqual(0, len(destination_account.transaction_history))
