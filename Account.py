@@ -19,9 +19,10 @@ class Account(object):
     def __init__(self, name, number, overdraft=0, opening_balance=0):
         self.account_holder = name
         self.account_number = number
-        self._balance = opening_balance
+        self._balance = 0
         self.overdraft_maximum = overdraft
         self.transaction_history = []
+        self.execute_transaction(AccountTransaction(opening_balance, 'opening balance'))
 
     def execute_transaction(self, transaction: AccountTransaction) -> float:
         # side effect : we modify the transaction passed in:
@@ -61,5 +62,11 @@ class Account(object):
 
     def get_balance(self):
         return self._balance
+
+    def get_transaction_history(self, start_date, end_date) -> list:
+        sorted_transactions = sorted(self.transaction_history, key=lambda t: t.timestamp)
+
+        for transaction in self.transaction_history:
+            print(f'{transaction.transaction_id} {transaction.timestamp} {transaction.memo}')
 
     balance = property(get_balance)

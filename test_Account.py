@@ -31,4 +31,5 @@ class TestAccount(TestCase):
             self.b.execute_transaction(AccountTransaction(-10000, ''))
         self.assertEqual(-5000, context.exception.args[0]['balance'])
 
-
+    def test_print_transactions(self):
+        self.b.get_transaction_history(None, None)

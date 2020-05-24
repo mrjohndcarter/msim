@@ -35,8 +35,8 @@ class TestBank(TestCase):
 
         self.bankA.internal_transfer(source_account.account_number, destination_account.account_number, 0.99)
         self.assertEqual(50.99, destination_account.balance)
-        self.assertEqual(1, len(source_account.transaction_history))
-        self.assertEqual(1, len(destination_account.transaction_history))
+        self.assertEqual(2, len(source_account.transaction_history))
+        self.assertEqual(2, len(destination_account.transaction_history))
 
     def test_intrabank_transfer_fail(self):
         source_account = self.bankA.create_account('Huey', overdraft=0, opening_balance=50)
@@ -49,10 +49,10 @@ class TestBank(TestCase):
         self.assertEqual(50, destination_account.balance)
 
         # should have an in and out transaction (from rollback)
-        self.assertEqual(2, len(source_account.transaction_history))
+        self.assertEqual(3, len(source_account.transaction_history))
 
         # destination account should be none the wiser
-        self.assertEqual(0, len(destination_account.transaction_history))
+        self.assertEqual(1, len(destination_account.transaction_history))
 
         with self.assertRaises(AmountError) as context:
             self.bankA.internal_transfer(source_account.account_number, destination_account.account_number, -100.0)
