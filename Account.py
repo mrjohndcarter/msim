@@ -30,6 +30,7 @@ class Account(object):
         transaction.balance = self._balance + transaction.amount
         self.transaction_history.append(transaction)
         self.__transact(transaction.amount)
+        transaction.balance = self._balance
         return self._balance
 
     def rollback_transaction(self, transaction: AccountTransaction) -> AccountTransaction:
@@ -67,6 +68,6 @@ class Account(object):
         sorted_transactions = sorted(self.transaction_history, key=lambda t: t.timestamp)
 
         for transaction in self.transaction_history:
-            print(f'{transaction.transaction_id} {transaction.timestamp} {transaction.memo}')
+            print(f'{transaction.transaction_id} {transaction.timestamp} A:{transaction.amount} B:{transaction.balance} {transaction.memo}')
 
     balance = property(get_balance)
