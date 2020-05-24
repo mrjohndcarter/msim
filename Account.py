@@ -11,6 +11,10 @@ class InsufficientFundsError(AccountError):
     pass
 
 
+class AmountError(AccountError):
+    pass
+
+
 class Account(object):
     def __init__(self, name, number, overdraft=0, opening_balance=0):
         self.account_holder = name

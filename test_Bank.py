@@ -1,6 +1,6 @@
 from unittest.case import TestCase
 
-from Account import InsufficientFundsError
+from Account import AmountError, InsufficientFundsError
 from Bank import Bank
 
 
@@ -38,7 +38,6 @@ class TestBank(TestCase):
         self.assertEqual(1, len(source_account.transaction_history))
         self.assertEqual(1, len(destination_account.transaction_history))
 
-
     def test_intrabank_transfer_fail(self):
         source_account = self.bankA.create_account('Huey', overdraft=0, opening_balance=50)
         destination_account = self.bankA.create_account('Donald Duck', overdraft=100, opening_balance=50)
@@ -54,3 +53,9 @@ class TestBank(TestCase):
 
         # destination account should be none the wiser
         self.assertEqual(0, len(destination_account.transaction_history))
+
+        with self.assertRaises(AmountError) as context:
+            self.bankA.internal_transfer(source_account.account_number, destination_account.account_number, -100.0)
+
+        with self.assertRaises(AmountError) as context:
+            self.bankA.internal_transfer(source_account.account_number, destination_account.account_number, -0.0)
